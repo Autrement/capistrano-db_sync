@@ -1,3 +1,7 @@
+# This class is copied from Foreman
+# cf. https://github.com/ddollar/foreman/commit/19e9806c4cdf348325fe8312fac827774af4affa
+# It's just modified to accept the file's content instead of the file's path
+
 module Capistrano::DBSync
   class Env
   
