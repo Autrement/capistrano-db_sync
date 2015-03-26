@@ -1,8 +1,15 @@
+require "pry"
 module Capistrano::DBSync
   module Executor
     class Remote < Base
       def initialize(cap, config)
         super(cap, config, :remote)
+
+        default_env = File.join(cap.current_path, ".env")
+        if cap.test "[ -f #{default_env} ]"
+          load_env cap.capture("cat #{default_env}")
+        end
+
         load_db_config! cap.capture("cat #{File.join cap.current_path, 'config', 'database.yml'}")
       end
 
@@ -16,6 +23,13 @@ module Capistrano::DBSync
       end
 
       private
+
+      def load_env(file_content)
+        Capistrano::DBSync::Env.new(file_content).entries do |name, value|
+          # The value is not overridden if it's already in the ENV hash.
+          ENV[name] = value unless ENV.key?(name)
+        end
+      end
 
       def dump!
         cap.execute "mkdir -p #{dump_dir}"
